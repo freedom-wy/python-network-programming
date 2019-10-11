@@ -70,6 +70,48 @@ C:\soft\sqlmap>python sqlmap.py -u "http://192.168.1.9/dvwa/vulnerabilities/sqli
  -C "user,password" --os-shell
 ```
 ***
+12、oracle数据库注入
+```text
+oracle数据库进行注入测试时必须写from一个表
+union select 1,2,3,4,5 from dual;
+由于使用union查询oracle数据库时必须保证前后两个字段类型相同，为了不报错，可以使用Null占位，则为union select null,null,null,null,null from dual;
+dual是oracle默认创建的表，由system账号创建
+union select 的返回结果为排序去重
+union all select 直接输出查询结果，不会排序去重
+```
+13、为什么参数化查询可以防止 sql 注入
+```python
+import pymysql
+
+#连接数据库
+connect = pymysql.connect(
+    host='192.168.1.9',
+    user='root',
+    password='root',
+    db='dvwa',
+    port=3306,
+    charset='utf8'
+)
+
+#正常查询
+name = 'admin'
+#注入查询
+# name = 'admin\''+ ' or 1=1#'
+with connect.cursor() as cursor:
+    #危险查询方法，会造成SQL注入
+    # query = "select * from users where user='%s'"%(name)
+    #安全查询方法，使用execute的参数传递name值
+    query = "select * from users where user=%s"
+    count = cursor.execute(query,args=name)
+    print("影响行数:",str(count))
+    for row in cursor.fetchall():
+        print(row)
+    connect.commit()
+#使用预编译的SQL语句，SQL语句的语义不会改变。
+#在PHP中使用?进行占位
+```
+
+***
 不定期分享一些python开发,逆向破解、渗透测试相关文章,欢迎大家关注.  
 ![微信公众号](../gongzhonghao.jpg)
 ***
